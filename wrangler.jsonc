@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ega-plugin",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-26",
+  "workers_dev": true,
+  "preview_urls": false,
+}
