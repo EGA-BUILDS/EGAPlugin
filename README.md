@@ -1,33 +1,21 @@
 # EGAPlugin
 
-Personal, authenticated **Skills over MCP** (SEP-2640) provider hosted on Cloudflare Workers Free, with Git and GitHub as the canonical skill store and lifecycle workflow.
+**Current release baseline: `v0.0.1`.** This documentation release establishes the architecture and engineering contract for a personal, authenticated Skills over MCP provider.
 
-EGAPlugin V1 replaces the complex `egawilldoit/ega-skills` platform with a minimal MCP-first architecture targeting **$0/month** hosting.
+The application is a minimal, undeployed Cloudflare Worker bootstrap. The repository has no live MCP endpoint, OAuth functionality, or Cloudflare deployment. [V1-001 feasibility](docs/feasibility/V1-001-report.md) remains incomplete. Local spike research is recorded there, while the edge and real-client acceptance gates are still open.
 
-## Specification
+## Planned V1 architecture
 
-- [SPEC-001 — EGAPlugin V1: MCP-First Personal Skill Provider](docs/specs/SPEC-001.md) (Revision 6 — MCP-only V1 baseline; `V1-001` feasibility gate required)
-- [Archived Revision 5](docs/specs/archive/SPEC-001-rev5.md) (historical reference)
+[**SPEC-001 Revision 6**](docs/specs/SPEC-001.md) is the architecture authority. V1 targets Cloudflare Workers Free with a native MCP TypeScript SDK v2 `createMcpHandler`, the official SEP-2640 Skills extension, and one immutable skill catalog generated from approved Git files. The proposed authentication design uses the Workers OAuth provider, GitHub owner identity, and one KV namespace. The [archived Revision 5](docs/specs/archive/SPEC-001-rev5.md) is a historical reference.
 
-## Technical Stack
-
-- **Runtime:** Cloudflare Workers Free (Wrangler)
-- **Language:** TypeScript (strict mode)
-- **Node.js / Package manager:** Node.js LTS (`.nvmrc`) + pnpm (`packageManager`)
-- **Testing:** Vitest
-- **Code quality:** ESLint + Prettier
-- **CI / Deployment:** GitHub Actions + Wrangler
-
-Planned V1 integrations pending **`V1-001`** feasibility verification (not yet implemented or provisioned): `@modelcontextprotocol/server` v2 (`ext/skills`, SEP-2640), Cloudflare Agents SDK (`createMcpHandler`), `workers-oauth-provider` + GitHub OAuth owner allowlist + 1 Cloudflare KV namespace.
-
-## Development
+## Local development
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-## Verification & Testing
+## Verification
 
 ```bash
 pnpm lint
@@ -37,9 +25,4 @@ pnpm test
 pnpm exec wrangler deploy --dry-run
 ```
 
-Fresh checkouts install, pass all checks, and pass `wrangler deploy --dry-run` without Cloudflare or OAuth credentials.
-
-## Status
-
-- **Current phase:** Minimal Cloudflare Worker bootstrap complete (aligned with SPEC-001 Revision 6).
-- **Next work package:** `V1-001` — SDK, OAuth, client compatibility, and CPU feasibility.
+These checks cover the bootstrap and a local bundle build. They require no Cloudflare or OAuth credentials.
