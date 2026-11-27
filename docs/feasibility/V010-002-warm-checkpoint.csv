@@ -1,0 +1,26 @@
+size,op,label,phase,samples,httpOk,tailN,coverage,complete,coverageOk,errors,cpu_p50,cpu_p95,cpu_p99,cpu_max,wall_p50,wall_p95,http_p50,http_p95,gate
+1,discover,server/discover,warm,100,100,100,1,True,True,0,3,6,10,20,12,22,74.743,101.178,False
+1,get,skills/get,warm,100,100,99,0.99,True,True,0,2,4,7,7,8,16,68.007,90.035,True
+1,get_skill,tools/call get_skill,warm,100,100,100,1,True,True,0,2,5,15,18,8,16,67.323,96.771,True
+1,get_skill_file,tools/call get_skill_file,warm,100,100,100,1,True,True,0,2,5,8,8,8,15,68.944,91.994,True
+1,legacy_initialize,initialize (legacy),warm,100,100,100,1,True,True,0,1,3,4,6,7,12,63.163,86.879,True
+1,list,skills/list,warm,100,100,100,1,True,True,0,2,5,9,14,9,17,70.11,95.254,True
+1,read,resources/read,warm,100,100,100,1,True,True,0,2,5,6,10,11,19,70.694,92.832,True
+1,search_skills,tools/call search_skills,warm,100,100,100,1,True,True,0,2,5,9,16,8,16,63.48,88.296,True
+10,discover,server/discover,warm,100,100,100,1,True,True,0,1,3,5,6,8,16,70.162,87.992,True
+10,get,skills/get,warm,100,100,100,1,True,True,0,2,5,8,16,10,18,73.708,108.228,True
+10,get_skill,tools/call get_skill,warm,100,100,100,1,True,True,0,2,4,6,8,10,19,72.429,100.462,True
+10,get_skill_file,tools/call get_skill_file,warm,100,100,100,1,True,True,0,2,4,4,5,8,13,65.115,81.454,True
+10,legacy_initialize,initialize (legacy),warm,100,100,100,1,True,True,0,1,4,6,12,8,13,63.877,80.19,True
+10,list,skills/list,warm,100,100,100,1,True,True,0,2,4,6,6,10,15,70.621,98.678,True
+10,read,resources/read,warm,100,100,100,1,True,True,0,2,4,9,11,9,18,69.86,92.946,True
+10,search_skills,tools/call search_skills,warm,100,100,100,1,True,True,0,3,7,11,19,11,20,71.48,100.237,False
+50,discover,server/discover,warm,100,100,99,0.99,True,True,0,2,5,15,15,8,19,68.057,92.563,True
+50,get,skills/get,warm,100,100,100,1,True,True,0,2,5,9,16,9,15,70.352,100.36,True
+50,get_skill,tools/call get_skill,warm,100,100,100,1,True,True,0,2,4,5,5,9,17,71.544,95.987,True
+50,get_skill_file,tools/call get_skill_file,warm,100,100,100,1,True,True,0,2,4,5,14,8,12,65.302,82.254,True
+50,legacy_initialize,initialize (legacy),warm,100,100,100,1,True,True,0,2,6,11,16,8,20,66.861,96.743,False
+50,list,skills/list,warm,100,100,100,1,True,True,0,2,5,7,11,9,14,68.57,94.739,True
+50,read,resources/read,warm,100,100,100,1,True,True,0,1,4,6,9,8,16,68.211,100.395,True
+50,search_skills,tools/call search_skills,warm,100,100,100,1,True,True,0,2,6,22,48,10,21,71.856,107.64,False
+100,discover,server/discover,warm,100,100,100,1,True,True,0,1,4,6,8,8,15,68.047,91.341,True
