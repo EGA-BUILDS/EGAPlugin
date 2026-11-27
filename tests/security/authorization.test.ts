@@ -13,8 +13,10 @@
  *   - named export `apiHandler`: `{ fetch(request, env, ctx) }` used by OAuthProvider.
  *   - `ctx.props`:  { githubUserId, scopes, resource } from the authorization grant.
  *   - `ctx.auth`:   { scope|scopes, audience, expiresAt } from the validated token.
- *   - env: GITHUB_OWNER_ID, REQUIRED_SCOPE, ALLOWED_ORIGINS (comma-separated),
- *          MCP_RESOURCE (canonical `.../mcp` URL).
+ *   - env: GITHUB_OWNER_ID, REQUIRED_SCOPE, ALLOWED_ORIGINS (comma-separated)
+ *          or ALLOWED_ORIGIN (single value), and MCP_RESOURCE (canonical
+ *          `.../mcp` URL). The fixture supplies both Origin variable names so
+ *          the runtime may choose either shape.
  *   - all /mcp outcomes (success and denial) carry `Cache-Control` containing
  *     `no-store`; handler-origin denials also carry `private`.
  *
@@ -41,6 +43,7 @@ interface SyntheticEnv {
   GITHUB_OWNER_ID: string;
   REQUIRED_SCOPE: string;
   ALLOWED_ORIGINS: string;
+  ALLOWED_ORIGIN: string;
   MCP_RESOURCE: string;
   OAUTH_KV: KVNamespace;
 }
@@ -111,6 +114,7 @@ function testEnv(): SyntheticEnv {
     GITHUB_OWNER_ID: OWNER_ID,
     REQUIRED_SCOPE,
     ALLOWED_ORIGINS: ALLOWED_ORIGIN,
+    ALLOWED_ORIGIN,
     MCP_RESOURCE,
     OAUTH_KV: kvStub(),
   };
