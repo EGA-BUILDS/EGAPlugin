@@ -140,16 +140,11 @@ Recorded on the merged Revision 7 base
 | Wire suite, fixture            | `tests/protocol/run-local.sh`                  | 39 pass, 0 fail, 1 optional skip (`AUTH-01`) |
 | Official client, fixture       | `tests/protocol/run-local.sh`                  | 17 pass, 0 fail (modern 10, legacy 7)        |
 | Vitest wrapper                 | `pnpm test -- tests/protocol/protocol.test.ts` | 1 file, 2 tests passed                       |
-| Runtime endpoint, local Worker | `MCP_TEST_URL=... tests/protocol/run-local.sh` | Pending runtime integration                  |
+| Runtime endpoint, local Worker | `MCP_TEST_URL=... tests/protocol/run-local.sh` | Separate release runtime suites in CI        |
 
 The full evidence record is
 [`docs/acceptance/V010-008-protocol-verification.md`](../../docs/acceptance/V010-008-protocol-verification.md).
 
-## Open items
+## Release runtime coverage
 
-- Runtime integration run is pending the Phase B runtime and generated catalog.
-- Page-size bounds are exercised when the server issues `nextCursor`; the
-  current fixture serves one complete page and rejects every cursor, so
-  pagination stability is asserted but multi-page bounds await integration.
-- Authorization behavior is intentionally not asserted here; see the separate
-  V010-008 authorization tests.
+The CI suite also runs `tests/worker.test.ts` against the release Worker in workerd with an isolated local OAuth grant, and `tests/catalog-runtime.test.ts` against the release SDK handler and generated catalog. These cover both protocol eras, paginated inventory, and fallback parity. The reference fixture serves one page and does not exercise the release catalog.

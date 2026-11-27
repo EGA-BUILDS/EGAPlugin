@@ -6,7 +6,7 @@
 | Base   | SPEC-001 Revision 7, merged `737dd0754304764cf8bc7a945c083a666faba71a` |
 | Date   | 2026-11-27                                                             |
 | Scope  | Local protocol tests only; no deployment, live, or performance work    |
-| Status | Fixture layers pass; runtime integration pending Phase B runtime       |
+| Status | Fixture suites and release runtime integration passed locally          |
 
 This slice supplies the local protocol verification required by SPEC-001
 Revision 7 §12.4. It does not implement the runtime, mutate the catalog, test
@@ -96,10 +96,9 @@ cursors, gate disallowed Origin before dispatch, and use `private, no-store`
 plus modern `cacheScope: "private"` / `ttlMs: 0`. The complete contract is in
 [`tests/protocol/README.md`](../../tests/protocol/README.md).
 
-## Open items
+## Release runtime verification
 
-- Runtime integration run awaits the Phase B runtime and generated catalog.
-- Multi-page bounds await a server that issues `nextCursor`; the fixture serves
-  one complete page and rejects every cursor.
-- Live CPU/latency, KV revocation, historical version URLs, deployment, and real
-  clients remain out of scope for this slice.
+- `tests/worker.test.ts` exchanges a synthetic local grant through the Worker OAuth token endpoint and verifies authenticated discovery and Unicode fallback retrieval in both protocol eras. The grant is local to workerd KV.
+- `tests/catalog-runtime.test.ts` exercises the released SDK handler and generated catalog, including discovery and initialization, five-entry pagination, native retrieval, and fallback parity for all 7 skills and 19 files.
+- The separate fixture suites remain reference protocol checks. Their results do not represent a run against a deployed release Worker.
+- Live CPU and latency, distributed revocation, historical URLs, and real-client acceptance retain the deferrals in SPEC-001.

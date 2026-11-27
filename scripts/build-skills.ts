@@ -94,7 +94,7 @@ export class CatalogBuildError extends Error {
 const SKILL_ID_PATTERN = /^[\da-z]+(?:-[\da-z]+)*$/;
 const FRONTMATTER_KEY_PATTERN = /^([A-Za-z_][A-Za-z0-9_-]*):(?:[ \t]+(.*))?$/;
 const ENCODED_IN_URI_SEGMENT = /[^\w!$&'()*+,.:;=@[\]|~-]/gu;
-const TEXT_DECODER = new TextDecoder("utf-8", { fatal: true, ignoreBOM: false });
+const TEXT_DECODER = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const TEXT_ENCODER = new TextEncoder();
 
 function fail(where: string, message: string): never {

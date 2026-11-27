@@ -129,7 +129,9 @@ export function createMcpRuntime(
           return errorResult("Skill not found.");
         }
         const text =
-          typeof instructions === "string" ? instructions : new TextDecoder().decode(instructions);
+          typeof instructions === "string"
+            ? instructions
+            : new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(instructions);
         return textResult(
           JSON.stringify({
             name: skill.frontmatter.name,
@@ -155,13 +157,19 @@ export function createMcpRuntime(
         const manifest = skill ? staticManifest(skill) : null;
         if (!skill || manifest === null) return errorResult("Skill not found.");
 
-        const uri = `${SKILL_URI_PREFIX}${name}/${path}`;
-        const resource = manifest.find((candidate) => candidate.uri === uri);
+        const decodedUri = `${SKILL_URI_PREFIX}${name}/${path}`;
+        const resource = manifest.find(
+          (candidate) => decodeURIComponent(candidate.uri) === decodedUri
+        );
         if (!resource) return errorResult("File not found.");
 
+        const { uri } = resource;
         const content = catalog.read(uri);
         if (content === undefined) return errorResult("File not found.");
-        const text = typeof content === "string" ? content : new TextDecoder().decode(content);
+        const text =
+          typeof content === "string"
+            ? content
+            : new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(content);
         return textResult(
           JSON.stringify({ uri, text, digest: resource.digest, size: resource.size })
         );

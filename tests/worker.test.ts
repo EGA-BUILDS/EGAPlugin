@@ -1,3 +1,6 @@
+import { env as bindings } from "cloudflare:workers";
+import { getOAuthApi } from "@cloudflare/workers-oauth-provider";
+import releaseWorker from "../src/index";
 import { describe, expect, it } from "vitest";
 import type { RuntimeCatalog } from "../src/catalog";
 import { createWorker, type Env, type EgaWorker } from "../src/worker";
@@ -206,4 +209,134 @@ describe("protected MCP authorization seam", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
+});
+
+it("serves the generated catalog through the Worker OAuth provider in both protocol versions", async () => {
+  const workerEnv = { ...env, OAUTH_KV: (bindings as unknown as Env).OAUTH_KV } as Env;
+  const resource = `${publicOrigin}/mcp`;
+  const redirectUri = "http://127.0.0.1:43917/callback";
+  const scope = ["catalog:read"];
+  const oauth = getOAuthApi<Env>(
+    {
+      apiRoute: "/mcp",
+      apiHandler: releaseWorker.apiHandler,
+      defaultHandler: releaseWorker,
+      authorizeEndpoint: "/authorize",
+      tokenEndpoint: "/oauth/token",
+      scopesSupported: scope,
+      resourceMetadata: { resource, authorization_servers: [publicOrigin] },
+    },
+    workerEnv
+  );
+  const client = await oauth.createClient({
+    redirectUris: [redirectUri],
+    tokenEndpointAuthMethod: "none",
+  });
+  const verifier = "local-workerd-test-pkce-verifier-000000000000";
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+  const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+  const grant = await oauth.completeAuthorization({
+    request: {
+      responseType: "code",
+      clientId: client.clientId,
+      redirectUri,
+      scope,
+      resource,
+      state: "local-test",
+      codeChallenge: challenge,
+      codeChallengeMethod: "S256",
+    },
+    userId: "1",
+    metadata: {},
+    scope,
+    props: { githubUserId: "1", resource, scopes: scope },
+  });
+  const tokenResponse = await fetchWorker(
+    releaseWorker,
+    "/oauth/token",
+    {
+      method: "POST",
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: client.clientId,
+        code: new URL(grant.redirectTo).searchParams.get("code")!,
+        redirect_uri: redirectUri,
+        code_verifier: verifier,
+        resource,
+      }),
+    },
+    workerEnv
+  );
+  expect(tokenResponse.status).toBe(200);
+  const { access_token } = await tokenResponse.json<{ access_token: string }>();
+  expect(typeof access_token).toBe("string");
+
+  for (const modern of [true, false]) {
+    const version = modern ? "2026-07-28" : "2025-11-25";
+    const clientInfo = { name: "local-worker-test", version: "1.0.0" };
+    async function rpc(method: string, params: Record<string, unknown> = {}) {
+      const response = await fetchWorker(
+        releaseWorker,
+        "/mcp",
+        {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${access_token}`,
+            "content-type": "application/json",
+            accept: "application/json, text/event-stream",
+            "mcp-protocol-version": version,
+            ...(modern && { "mcp-method": method }),
+            ...(modern && typeof params.name === "string" && { "mcp-name": params.name }),
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method,
+            params: modern
+              ? {
+                  ...params,
+                  _meta: {
+                    "io.modelcontextprotocol/clientInfo": clientInfo,
+                    "io.modelcontextprotocol/clientCapabilities": {},
+                    "io.modelcontextprotocol/protocolVersion": version,
+                  },
+                }
+              : params,
+          }),
+        },
+        workerEnv
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get("cache-control")).toBe("private, no-store");
+      const raw = await response.text();
+      const data = response.headers.get("content-type")?.includes("text/event-stream")
+        ? raw
+            .split("\n")
+            .find((line) => line.startsWith("data: "))
+            ?.slice(6)
+        : raw;
+      return JSON.parse(data!) as unknown;
+    }
+    const discovery = modern
+      ? await rpc("server/discover")
+      : await rpc("initialize", { protocolVersion: version, clientInfo, capabilities: {} });
+    expect(discovery).toMatchObject({
+      result: {
+        capabilities: { extensions: { "io.modelcontextprotocol/skills": expect.any(Object) } },
+      },
+    });
+    if (modern) {
+      expect(await rpc("skills/list")).toMatchObject({ result: { skills: expect.any(Array) } });
+    }
+    const retrieved = await rpc("tools/call", {
+      name: "get_skill_file",
+      arguments: { name: "fixture-unicode-notes", path: "assets/数据.txt" },
+    });
+    expect(retrieved).toMatchObject({
+      result: { content: [{ type: "text", text: expect.stringContaining("sha256:") }] },
+    });
+  }
 });

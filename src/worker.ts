@@ -308,11 +308,13 @@ function createDefaultHandler(config: ResolvedConfig): ExportedHandler<Env> {
               .getAll("scope")
               .map(String)
               .filter((scope) => scope === config.requiredScope);
-            const approved = await oauth.approveConsent(
-              request,
-              handle,
-              requestedScopes.length > 0 ? { scope: requestedScopes } : undefined
-            );
+            if (requestedScopes.length === 0) {
+              const denied = await oauth.denyConsent(request, handle);
+              return new Response(null, { status: 302, headers: denied.headers });
+            }
+            const approved = await oauth.approveConsent(request, handle, {
+              scope: requestedScopes,
+            });
             const upstream = await oauth.beginUpstream(approved.request, {
               data: {},
               headers: approved.headers,
