@@ -3,8 +3,8 @@
 | Field                   | Value                                                                                     |
 | ----------------------- | ----------------------------------------------------------------------------------------- |
 | **Status**              | Revision 7 proposed for owner adoption. See §9 for release gates.                         |
-| **Revision**            | 6 — supersedes Revision 5 (archived at [SPEC-001-rev5.md](archive/SPEC-001-rev5.md))      |
-| **Date**                | 2026-11-26                                                                                |
+| **Revision**            | 7 — supersedes Revision 6 (preserved in tag `v0.0.1`)                                     |
+| **Date**                | 2026-11-27                                                                                |
 | **Target product**      | EGAPlugin V1                                                                              |
 | **Target repository**   | `EGA-BUILDS/EGAPlugin` (public repository — non-sensitive source, specs, and skills only) |
 | **Predecessor**         | `egawilldoit/ega-skills` (preserved untouched)                                            |
