@@ -1,0 +1,4 @@
+catalog listed
+manifest complete
+digest verified
+bytes unchanged

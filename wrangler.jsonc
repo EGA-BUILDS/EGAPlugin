@@ -3,6 +3,15 @@
   "name": "ega-plugin",
   "main": "src/index.ts",
   "compatibility_date": "2026-11-26",
+  "compatibility_flags": ["global_fetch_strictly_public"],
   "workers_dev": true,
   "preview_urls": false,
+  // The build-generated immutable catalog. `generated/skills.ts` is produced by the
+  // catalog builder and is not committed, so run that build before bundling.
+  "alias": {
+    "ega-plugin/generated-catalog": "./generated/skills.ts",
+  },
+  // Local development and tests use Miniflare's local KV storage. Provision the
+  // real namespace only during authorized V1-004 production acceptance.
+  "kv_namespaces": [{ "binding": "OAUTH_KV", "id": "00000000000000000000000000000000" }],
 }
