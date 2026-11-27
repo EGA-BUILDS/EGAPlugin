@@ -1,0 +1,15 @@
+{
+  "name": "ega-plugin-acceptance-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Test-only SEP-2640 reference server used to validate acceptance tooling. Not a product implementation and never deployed.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "4.6.7"
+  }
+}
