@@ -2,7 +2,7 @@
 
 **Current release baseline: `v0.0.1`.** This documentation release establishes the architecture and engineering contract for a personal, authenticated Skills over MCP provider.
 
-The application is a minimal, undeployed Cloudflare Worker bootstrap. The repository ships no live MCP endpoint, production OAuth functionality or permanent Cloudflare deployment. The [live spike evidence](docs/feasibility/V010-002-live-evidence.md) records measured results, failed checks and open gates. The [original feasibility report](docs/feasibility/V1-001-report.md) preserves the earlier local research.
+The Worker serves one authenticated Streamable HTTP MCP endpoint at `/mcp` through the MCP SDK v2 `createMcpHandler` and the SEP-2640 Skills extension, backed by the immutable build-generated catalog. Authorization uses the Workers OAuth provider, GitHub owner identity and one KV namespace. The Worker fails closed when the protected-resource configuration is missing, and it is not deployed permanently. The [live spike evidence](docs/feasibility/V010-002-live-evidence.md) records measured results, failed checks and open gates. The [original feasibility report](docs/feasibility/V1-001-report.md) preserves the earlier local research.
 
 ## Planned V1 architecture
 
@@ -12,12 +12,16 @@ The application is a minimal, undeployed Cloudflare Worker bootstrap. The reposi
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm build:skills
 pnpm dev
 ```
+
+`pnpm build:skills` renders `generated/skills.ts` from the approved files under `skills/`. The module is gitignored and required before bundling, Worker-runtime tests or a deployment dry run.
 
 ## Verification
 
 ```bash
+pnpm build:skills
 pnpm lint
 pnpm format:check
 pnpm typecheck
