@@ -2,7 +2,7 @@
 
 > **Historical report.** Its closure criteria describe Revision 6. See the [live evidence](V010-002-live-evidence.md) and [proposed Revision 7 gates](../specs/SPEC-001.md#9-implementation-roadmap-5-work-packages) for the proposed release split.
 
-> **Status at the time of research: INCOMPLETE.** Local `workerd` research was completed on 2026-11-26. Live Cloudflare Free CPU and startup, GitHub OAuth, distributed KV revocation, historical Version URLs, and real-client integration remain unverified. All experimental MCP and OAuth spike code was excluded from `main`. Start `V1-002` only after the [SPEC-001 §9 feasibility gate](../specs/SPEC-001.md#9-implementation-roadmap-5-work-packages) passes and the owner signs off.
+> **Status at the time of research: INCOMPLETE.** Local `workerd` research was completed on 2026-11-26. Live Cloudflare Free CPU and startup, GitHub OAuth, distributed KV revocation, historical Version URLs, and real-client integration remain unverified. All experimental MCP and OAuth spike code was excluded from `main`. Start `V1-002` only after the Revision 6 feasibility gate in SPEC-001 §9 passes and the owner signs off.
 
 | Field                        | Value                                                                                                                                                                              |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

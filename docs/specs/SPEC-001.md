@@ -63,7 +63,7 @@ The core product requirements remain intact — managed through Git and coding a
 - Build-time validation and bundling (`scripts/build-skills.ts` → `generated/skills.ts`) with strict path, frontmatter, and inventory checks.
 - One stateless Cloudflare Worker serving authenticated Skills over MCP (SEP-2640) via `@modelcontextprotocol/server` v2 and `createMcpHandler`.
 - Single-Worker `OAuthProvider` with GitHub owner authentication (verified numeric user ID) and one Cloudflare KV namespace, subject to live production acceptance in `V1-004`.
-- Up to three lightweight read-only compatibility tools (`search_skills`, `get_skill`, `get_skill_file`), when justified by observed client behavior under §5.2. Exhaustive acceptance is due in `V1-005`.
+- Up to three lightweight read-only compatibility tools (`search_skills`, `get_skill`, `get_skill_file`), when justified by observed client behavior under §4.2. Exhaustive acceptance is due in `V1-005`.
 - GitHub Actions CI (`ci.yml`) and owner-triggered production deployment (`deploy.yml`) with native Cloudflare rollback and Git release tags.
 
 ### 2.2 Explicitly out of scope for V1
@@ -358,7 +358,7 @@ The [live evidence](../feasibility/V010-002-live-evidence.md) records completed 
 
 ## 9. Implementation Roadmap (5 Work Packages)
 
-Work sequentially (`V1-001` → `V1-005`). Phase B starts after independent review and explicit owner adoption of Revision 7 and the feasibility evidence, verified disposable cleanup, and merge of PR A. The functional v0.1.0 release also requires independent review, green CI and explicit merge approval for PR B.
+Work sequentially (`V1-001` → `V1-005`). The feasibility PR (PR A) requires independent review, explicit owner adoption of Revision 7 and the feasibility evidence, and verified disposable cleanup before merge. Functional implementation (Phase B) starts after that merge. The implementation PR (PR B) requires independent review, green CI and explicit owner merge approval before release.
 
 | Release | Package | Required evidence                                                                                                                                                                                                                                                                                                                                            |
 | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
