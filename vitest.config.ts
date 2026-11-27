@@ -4,7 +4,12 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
-    exclude: ["**/node_modules/**", "**/dist/**", "tests/worker.test.ts"],
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "tests/worker.test.ts",
+      "tests/security/authorization.test.ts",
+    ],
   },
   resolve: {
     alias: {

@@ -21,6 +21,6 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["tests/worker.test.ts"],
+    include: ["tests/worker.test.ts", "tests/security/authorization.test.ts"],
   },
 });

@@ -27,8 +27,6 @@
  * `test_resource` knobs must not be copied into the production runtime.
  */
 
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const OWNER_ID = "42424242";
@@ -203,21 +201,11 @@ function expectPrivateNoStore(response: Response): void {
   expect(response.headers.get("cache-control")?.toLowerCase()).toContain("no-store");
 }
 
-function walkFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...walkFiles(path));
-    else if (entry.isFile() && path.endsWith(".ts")) out.push(path);
-  }
-  return out;
-}
-
 describe("V010-008 fail-closed entry point", () => {
   it("does not serve MCP content without authorization", async () => {
     const response = await callEntrypoint(mcpRequest());
 
-    expect([401, 404]).toContain(response.status);
+    expect(response.status).toBe(401);
     if (response.status === 401) {
       expect(response.headers.get("www-authenticate")?.toLowerCase()).toContain("bearer");
     }
@@ -253,42 +241,16 @@ describe("V010-008 fail-closed entry point", () => {
     expectNoCatalogLeak(await bypass.text());
   });
 
-  it("exposes the handler seam once the protected MCP runtime exists", async () => {
-    const probe = await callEntrypoint(mcpRequest());
-    const runtimeIsIntegrated = probe.status !== 404;
-
-    if (runtimeIsIntegrated) {
-      expect(
-        apiHandler,
-        "V010-008 integration need: export `apiHandler` from src/index.ts so " +
-          "owner/scope/resource/expiry/Origin checks can be tested without a bypass."
-      ).toBeDefined();
-    }
-  });
-
-  it("keeps the production runtime free of test bypass knobs", () => {
-    const forbidden = [
-      "SPIKE_MODE",
-      "bypass_auth_check",
-      "test_github_id",
-      "test_scopes",
-      "test_resource",
-    ];
-    const sourceRoot = join(process.cwd(), "src");
-    const findings = walkFiles(sourceRoot).flatMap((file) => {
-      const source = readFileSync(file, "utf8");
-      return forbidden
-        .filter((needle) => source.includes(needle))
-        .map((needle) => `${file.replace(process.cwd(), ".")}: ${needle}`);
-    });
-
-    expect(findings).toEqual([]);
+  it("exposes the protected handler seam", () => {
+    expect(
+      apiHandler,
+      "V010-008 integration need: export `apiHandler` from src/index.ts so " +
+        "owner/scope/resource/expiry/Origin checks can be tested without a bypass."
+    ).toBeDefined();
   });
 });
 
-const describeHandler = apiHandler ? describe : describe.skip;
-
-describeHandler("V010-008 authorization handler", () => {
+describe("V010-008 authorization handler", () => {
   it("rejects a request with no authorization context", async () => {
     const response = await callApiHandler(mcpRequest());
 

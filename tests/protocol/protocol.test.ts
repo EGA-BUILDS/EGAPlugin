@@ -1,5 +1,4 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -9,10 +8,6 @@ import { afterAll, describe, expect, it } from "vitest";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const protocolDir = path.join(repoRoot, "tests/protocol");
 const fixtureDir = path.join(protocolDir, "fixture");
-const fixtureInstalled = existsSync(path.join(fixtureDir, "node_modules"));
-const rootSdkInstalled = existsSync(
-  path.join(repoRoot, "node_modules/@modelcontextprotocol/client/package.json")
-);
 const externalUrl = process.env.MCP_TEST_URL?.trim() ?? "";
 const allowedOrigin = process.env.ALLOWED_ORIGIN?.trim() || "https://allowed.example";
 
@@ -26,55 +21,43 @@ afterAll(async () => {
 });
 
 describe("V010-008 local protocol verification", () => {
-  it.skipIf(!externalUrl && !fixtureInstalled)(
-    "passes wire-level modern, legacy, parity, Origin, and cursor checks",
-    async () => {
-      const url = externalUrl || (await startFixture());
-      artifactDir ??= await mkdtemp(path.join(tmpdir(), "ega-protocol-"));
-      const result = await runNode(
-        path.join(protocolDir, "mcp-suite.mjs"),
-        [
-          "--url",
-          url,
-          "--allowed-origin",
-          allowedOrigin,
-          "--json-out",
-          path.join(artifactDir, "wire.json"),
-        ],
-        120_000
-      );
-      expect(result.code, result.output).toBe(0);
-      expect(result.output).toContain("RESULT: PASS");
-    },
-    150_000
-  );
+  it("passes wire-level modern, legacy, parity, Origin, and cursor checks", async () => {
+    const url = externalUrl || (await startFixture());
+    artifactDir ??= await mkdtemp(path.join(tmpdir(), "ega-protocol-"));
+    const result = await runNode(
+      path.join(protocolDir, "mcp-suite.mjs"),
+      [
+        "--url",
+        url,
+        "--allowed-origin",
+        allowedOrigin,
+        "--json-out",
+        path.join(artifactDir, "wire.json"),
+      ],
+      120_000
+    );
+    expect(result.code, result.output).toBe(0);
+    expect(result.output).toContain("RESULT: PASS");
+  }, 150_000);
 
-  it.skipIf(!externalUrl && !fixtureInstalled)(
-    "passes official client modern and legacy negotiation with native/fallback parity",
-    async () => {
-      const url = externalUrl || (await startFixture());
-      const sdkRoot = rootSdkInstalled ? repoRoot : fixtureDir;
-      if (!rootSdkInstalled && !fixtureInstalled) return;
-      artifactDir ??= await mkdtemp(path.join(tmpdir(), "ega-protocol-"));
-      const result = await runNode(
-        path.join(protocolDir, "official-client.mjs"),
-        [
-          "--url",
-          url,
-          "--sdk-root",
-          sdkRoot,
-          "--json-out",
-          path.join(artifactDir, "official-client.json"),
-        ],
-        120_000
-      );
-      // Exit 2 means the pinned SDK is unavailable, not a protocol failure.
-      if (result.code === 2) return;
-      expect(result.code, result.output).toBe(0);
-      expect(result.output).toContain("RESULT: PASS");
-    },
-    150_000
-  );
+  it("passes official client modern and legacy negotiation with native/fallback parity", async () => {
+    const url = externalUrl || (await startFixture());
+    artifactDir ??= await mkdtemp(path.join(tmpdir(), "ega-protocol-"));
+    const result = await runNode(
+      path.join(protocolDir, "official-client.mjs"),
+      [
+        "--url",
+        url,
+        "--sdk-root",
+        repoRoot,
+        "--json-out",
+        path.join(artifactDir, "official-client.json"),
+      ],
+      120_000
+    );
+    expect(result.code, result.output).toBe(0);
+    expect(result.output).toContain("RESULT: PASS");
+  }, 150_000);
 });
 
 async function startFixture(): Promise<string> {

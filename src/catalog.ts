@@ -5,7 +5,7 @@ import type { Skill, SkillReadResult, SkillSource } from "@modelcontextprotocol/
 export const SKILL_URI_PREFIX = "skill://";
 
 /** Default number of complete skill entries returned per `skills/list` page. */
-export const DEFAULT_PAGE_SIZE = 100;
+export const DEFAULT_PAGE_SIZE = 5;
 /** Server-enforced upper bound for one listing page. */
 export const MAX_PAGE_SIZE = 100;
 
