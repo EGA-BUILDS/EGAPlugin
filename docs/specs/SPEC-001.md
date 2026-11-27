@@ -1,15 +1,15 @@
 # SPEC-001 — EGAPlugin V1: MCP-First Personal Skill Provider
 
-| Field                   | Value                                                                                     |
-| ----------------------- | ----------------------------------------------------------------------------------------- |
-| **Status**              | Revision 7 proposed for owner adoption. See §9 for release gates.                         |
-| **Revision**            | 7 — supersedes Revision 6 (preserved in tag `v0.0.1`)                                     |
-| **Date**                | 2026-11-27                                                                                |
-| **Target product**      | EGAPlugin V1                                                                              |
-| **Target repository**   | `EGA-BUILDS/EGAPlugin` (public repository — non-sensitive source, specs, and skills only) |
-| **Predecessor**         | `egawilldoit/ega-skills` (preserved untouched)                                            |
-| **Related project**     | EGA Software Factory (independent; untouched)                                             |
-| **Target hosting cost** | `$0/month` (Cloudflare Workers Free)                                                      |
+| Field                   | Value                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| **Status**              | Revision 7 takes effect on explicit owner adoption and merge of the feasibility PR. See §9. |
+| **Revision**            | 7 — supersedes Revision 6 (preserved in tag `v0.0.1`)                                       |
+| **Date**                | 2026-11-27                                                                                  |
+| **Target product**      | EGAPlugin V1                                                                                |
+| **Target repository**   | `EGA-BUILDS/EGAPlugin` (public repository — non-sensitive source, specs, and skills only)   |
+| **Predecessor**         | `egawilldoit/ega-skills` (preserved untouched)                                              |
+| **Related project**     | EGA Software Factory (independent; untouched)                                               |
+| **Target hosting cost** | `$0/month` (Cloudflare Workers Free)                                                        |
 
 ---
 
@@ -62,8 +62,8 @@ The core product requirements remain intact — managed through Git and coding a
 - One public GitHub repository (`EGA-BUILDS/EGAPlugin`) storing public source code, specifications, non-sensitive Agent Skills folders (`SKILL.md` + supporting text files), `sources.json`, and non-sensitive `upstream/` baselines.
 - Build-time validation and bundling (`scripts/build-skills.ts` → `generated/skills.ts`) with strict path, frontmatter, and inventory checks.
 - One stateless Cloudflare Worker serving authenticated Skills over MCP (SEP-2640) via `@modelcontextprotocol/server` v2 and `createMcpHandler`.
-- Single-Worker `OAuthProvider` with GitHub owner authentication (verified numeric user ID) and one Cloudflare KV namespace, subject to `V1-001` feasibility.
-- Up to three lightweight read-only compatibility tools (`search_skills`, `get_skill`, `get_skill_file`), subject to real-client testing in `V1-001`.
+- Single-Worker `OAuthProvider` with GitHub owner authentication (verified numeric user ID) and one Cloudflare KV namespace, subject to live production acceptance in `V1-004`.
+- Up to three lightweight read-only compatibility tools (`search_skills`, `get_skill`, `get_skill_file`), when justified by observed client behavior under §5.2. Exhaustive acceptance is due in `V1-005`.
 - GitHub Actions CI (`ci.yml`) and owner-triggered production deployment (`deploy.yml`) with native Cloudflare rollback and Git release tags.
 
 ### 2.2 Explicitly out of scope for V1
@@ -100,19 +100,19 @@ Each MCP request is handled statelessly: the Worker authenticates the request vi
 
 ### 3.2 Technology stack
 
-| Layer              | Technology                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------ |
-| Language           | TypeScript (strict mode)                                                                         |
-| Runtime            | Cloudflare Workers Free                                                                          |
-| MCP server         | `@modelcontextprotocol/server` v2 (local research used `2.4.0`, see §11)                         |
-| Skills extension   | `io.modelcontextprotocol/skills`, SEP-2640 beta (see §11)                                        |
-| Transport          | Native SDK v2 `createMcpHandler` (stateless Streamable HTTP)                                     |
-| Authentication     | `workers-oauth-provider` (`OAuthProvider`) + GitHub OAuth + 1 KV namespace (subject to `V1-001`) |
-| Content storage    | Git + build-generated `generated/skills.ts`                                                      |
-| Build & deployment | Wrangler + GitHub Actions                                                                        |
-| Testing            | Vitest, official Cloudflare Vitest integration, and `@modelcontextprotocol/client` v2            |
-| Quality            | ESLint + Prettier + TypeScript `tsc --noEmit`                                                    |
-| Package manager    | pnpm (`--frozen-lockfile`)                                                                       |
+| Layer              | Technology                                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Language           | TypeScript (strict mode)                                                                                            |
+| Runtime            | Cloudflare Workers Free                                                                                             |
+| MCP server         | `@modelcontextprotocol/server` v2 (local research used `2.4.0`, see §11)                                            |
+| Skills extension   | `io.modelcontextprotocol/skills`, SEP-2640 beta (see §11)                                                           |
+| Transport          | Native SDK v2 `createMcpHandler` (stateless Streamable HTTP)                                                        |
+| Authentication     | `workers-oauth-provider` (`OAuthProvider`) + GitHub OAuth + 1 KV namespace (live production acceptance in `V1-004`) |
+| Content storage    | Git + build-generated `generated/skills.ts`                                                                         |
+| Build & deployment | Wrangler + GitHub Actions                                                                                           |
+| Testing            | Vitest, official Cloudflare Vitest integration, and `@modelcontextprotocol/client` v2                               |
+| Quality            | ESLint + Prettier + TypeScript `tsc --noEmit`                                                                       |
+| Package manager    | pnpm (`--frozen-lockfile`)                                                                                          |
 
 ### 3.3 Target V1 repository structure
 
@@ -282,7 +282,7 @@ Use Cloudflare's official `workers-oauth-provider` (`OAuthProvider`) to run both
 }
 ```
 
-Additional compatibility flags and the OAuth KV binding will be added only after `V1-001` confirms them. Proposed production endpoint (not yet provisioned): `https://ega-plugin.<account-subdomain>.workers.dev/mcp`. No custom domain is required.
+Use only compatibility flags verified for the pinned Worker dependencies. Provision the live OAuth KV binding during authorized `V1-004` production acceptance. The v0.1.0 Worker must fail closed when production authorization is unavailable. Proposed production endpoint (not yet provisioned): `https://ega-plugin.<account-subdomain>.workers.dev/mcp`. No custom domain is required.
 
 ### 7.2 CI & manual deployment
 
@@ -322,7 +322,7 @@ _Note: Enforce a conservative internal bundle budget in `scripts/build-skills.ts
 
 ### 8.2 Benchmark matrix & proposed acceptance targets
 
-For v0.3.0, benchmark authenticated cold and warm requests (SDK init, `skills/list`, `skills/get`, and `resources/read`) across four catalog sizes. Include fallback tool calls when G4 demonstrates a need and the tools are enabled in the spike.
+For v0.3.0, benchmark authenticated cold and warm requests (SDK init, `skills/list`, `skills/get`, and `resources/read`) across four catalog sizes. Include fallback tool calls when those tools are enabled in the build under test.
 
 | Scenario | Catalog Size          |
 | -------- | --------------------- |
@@ -438,7 +438,7 @@ Each work package must record the tested revision, pinned tools, environment, fi
 6. **Real-client acceptance (v0.4.0).** Test actual target clients through discovery, approval, resource verification, activation and update, as applicable. Record exact client versions, configuration and observed outcomes. Report native Skills over MCP and compatibility tool consumption separately. Installed CLI versions, SDK tests and an implementation tracker entry cannot establish client acceptance.
 7. **Live infrastructure verification (v0.3.0).** In an authorized environment, record Cloudflare Free per-request edge CPU and global-scope startup measurements, cold and warm authenticated end-to-end latency, real GitHub OAuth and owner identity, and negative cases for token scope, audience and expiry. Verify revocation of access tokens and refresh grants, measuring cross-region KV propagation and documenting the observed consistency window. Verify historical Version URL protection, rollback and emergency withdrawal. The §9 gates determine when this evidence is due.
 
-For v0.1.0, verify missing and invalid authorization, wrong owner, insufficient scope, wrong audience and expiry with local or Worker-runtime tests as applicable. Verify Origin and private/no-store behavior and confirm that the normal Worker entry point fails closed when production authorization is unavailable. Any authorized fixture context must remain isolated from that entry point.
+For v0.1.0, verify missing and invalid authorization, wrong owner, insufficient scope, wrong audience and expiry with local or Worker-runtime tests as applicable. Verify Origin and private/no-store behavior and confirm that the normal Worker entry point fails closed when production authorization is unavailable. Exercise the same authorization checks with isolated fixtures. A deployable build must exclude test token minting, test revocation routes and authorization bypasses.
 
 ### Mandatory catalog integrity test
 
